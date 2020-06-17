@@ -1,6 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
+#include <queue> 
+#include <string>
+
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -29,7 +32,9 @@
 int WINDOW_WIDTH = 1000;
 int WINDOW_HEIGHT = 800;
 
-void socketSendMsg(int &iResult, SOCKET socket, const char *sendbuf) {
+void socketSendMsg(int &iResult, SOCKET socket, std::string stringMsg) {
+	// Some c++ magic ish stuff I found online
+	char* sendbuf = &*stringMsg.begin();
 	iResult = send(socket, sendbuf, (int)strlen(sendbuf) + 1, 0);
 	if (iResult == SOCKET_ERROR) {
 		printf("send failed: %d\n", WSAGetLastError());
@@ -41,19 +46,17 @@ void socketSendMsg(int &iResult, SOCKET socket, const char *sendbuf) {
 }
 
 void socketRecieveMsg(int &iResult, SOCKET socket, char recvbuf[], int recvbuflen) {
-	do {
-		iResult = recv(socket, recvbuf, recvbuflen, 0);
-		std::cout << iResult << std::endl;
-		if (iResult > 0) {
-			printf("Bytes received: %d\n", iResult);
-			std::cout << recvbuf << std::endl;
-			break;
-		}
-		else if (iResult == 0)
-			printf("Connection closed\n");
-		else
-			printf("recv failed: %d\n", WSAGetLastError());
-	} while (iResult > 0);
+	iResult = recv(socket, recvbuf, recvbuflen, 0);
+	std::cout << iResult << std::endl;
+	if (iResult > 0) {
+		printf("Bytes received: %d\n", iResult);
+		std::cout << recvbuf << std::endl;
+		//break;
+	}
+	else if (iResult == 0)
+		printf("Connection closed\n");
+	else
+		printf("recv failed: %d\n", WSAGetLastError());
 }
 
 void socketDisconnect(int &iResult, SOCKET socket) {
@@ -75,11 +78,12 @@ SOCKET setupServer() {
 	WSADATA wsaData;
 
 	int iResult;
+	bool WSAInit;
 
 	// Initialize Winsock
-	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (iResult != 0) {
-		printf("WSAStartup failed: %d\n", iResult);
+	WSAInit = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (WSAInit != 0) {
+		printf("WSAStartup failed: %d\n", WSAInit);
 		return 1;
 	}
 
@@ -149,15 +153,27 @@ SOCKET setupServer() {
 	}
 	std::cout << "Accepted client socket" << std::endl;
 
+	// Make the socket non-blocking
+	u_long iMode = 1;
+	iResult = ioctlsocket(ClientSocket, FIONBIO, &iMode);
+	if (iResult != NO_ERROR) {
+		printf("ioctlsocket failed with error: %ld\n", iResult);
+	}
+
+	if (WSAInit) {
+		WSACleanup();
+	}
+
 	return ClientSocket;
 }
 
 SOCKET connectClient() {
 	int iResult;
 	WSADATA wsaData;
-	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (iResult != 0) {
-		std::cout << "WSAStartup failed: " << iResult << std::endl;
+	bool WSAInit;
+	WSAInit = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (WSAInit != 0) {
+		std::cout << "WSAStartup failed: " << WSAInit << std::endl;
 		return 1;
 	}
 
@@ -170,7 +186,7 @@ SOCKET connectClient() {
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 
-	//int iResult;
+	//TODO: Still hardcoding my IP, need to do some sort of I/O for this
 	char const *hardCodeIP = "192.168.2.141";
 
 	// Resolve the server address and port
@@ -204,44 +220,65 @@ SOCKET connectClient() {
 	if (iResult == SOCKET_ERROR) {
 		closesocket(ConnectSocket);
 		ConnectSocket = INVALID_SOCKET;
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 
 	freeaddrinfo(result);
 
 	if (ConnectSocket == INVALID_SOCKET) {
 		printf("Unable to connect to server!\n");
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		WSACleanup();
 		return 1;
+	}
+
+	// Make the socket non-blocking
+	u_long iMode = 1;
+	iResult = ioctlsocket(ConnectSocket, FIONBIO, &iMode);
+	if (iResult != NO_ERROR) {
+		printf("ioctlsocket failed with error: %ld\n", iResult);
+	}
+
+	if (WSAInit) {
+		WSACleanup();
 	}
 
 	return ConnectSocket;
 }
 
-// TODO: I think this class is going to become the "Client" class
-// Moves will be made from here then then get sent to the GameState "Server" class
-// GameState then respons and sends information back to all the "clients"
+std::string createMsg(int mouseX, int mouseY, int playerID) {
+	std::vector<int> msgVec = { mouseX, mouseY, playerID };
+	std::string delim = "|";
 
-// TODO: Game will recieve the argument for wheter it is client or server
+	std::string msg;
+	std::for_each(msgVec.begin(), msgVec.end(),
+		[&](const int &i) {
+		if (&i != &msgVec[0]) {
+			msg += delim;
+		}
+		msg += std::to_string(i);
+	});
+	std::cout << msg << std::endl;
+	return msg;
+}
+
 void game(int playerID) {
 
 	// TODO: Proper code ran here whether you are client or server
 	int iResult;
 	int recvbuflen = DEFAULT_BUFLEN;
-	const char *sendbuf = "this is a test";
+	std::string sendbuf = "this is a test";
 	char recvbuf[DEFAULT_BUFLEN];
 
 	SOCKET playerSocket;
 
 	if (playerID == 0) {
-		SOCKET playerSocket = setupServer();
+		playerSocket = setupServer();
 	}
 	else {
-		SOCKET playerSocket = connectClient();
+		playerSocket = connectClient();
 	}
 
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML works!");
+	sf::Clock clock;
 
 	// Declare and load a font
 	sf::Font font;
@@ -250,12 +287,13 @@ void game(int playerID) {
 	GameState runningState;
 
 	//We may need to make a player class that has all this info
-	//int playerID = 0;
 	PieceSpawner spawn(playerID);
 
 	//TODO: Should we even have any of the for loop checks for this given that we are using one at all times?
 	std::vector<Piece> activePieces;
 	std::vector<Piece> placedPieces;
+
+	std::queue<std::string> eventQueue;
 
 	// TODO: All this event stuff will then add to an event queue which will then be sent over network.
 	while (window.isOpen())
@@ -276,7 +314,13 @@ void game(int playerID) {
 						activePieces[i].selectedFlag = false;
 						placedPieces.push_back(activePieces[i]);
 						activePieces.erase(activePieces.begin());
+
+						//TODO: This will be area of intrest for networking
+						// Update my game state then send msg to update other game state?
 						runningState.updateBoard(event.mouseButton.x, event.mouseButton.y, playerID);
+						std::string  msg = createMsg(event.mouseButton.x, event.mouseButton.y, playerID);
+						eventQueue.push(msg);
+
 					}
 				}
 			}
@@ -299,12 +343,27 @@ void game(int playerID) {
 				}
 			}
 
+			//TODO: Attach disconnecting to this
 			if (event.type == sf::Event::Closed) {
 				window.close();
 			}
 		}
 
 		// Every couple seconds check for messages here, update respective game objects accordingly
+		if (!eventQueue.empty()) {
+			std::string msg = eventQueue.front();
+			eventQueue.pop();
+			socketSendMsg(iResult, playerSocket, msg);
+		}
+
+		sf::Time elapsed = clock.getElapsedTime();
+		if (elapsed.asSeconds() > 0.5) {
+			socketRecieveMsg(iResult, playerSocket, recvbuf, recvbuflen);
+
+			//TODO: Update proper game stuff after recieving msg
+
+			clock.restart();
+		}
 
 		// GAME UPDATES
 		for (int i = 0; i < activePieces.size(); i++)
@@ -357,7 +416,6 @@ void game(int playerID) {
 
 int main()
 {
-	//game();
 	int x;
 	std::cout << "0 for server, 1 for client" << std::endl;
 	std::cin >> x;
