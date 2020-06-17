@@ -1,10 +1,13 @@
 ﻿  main.cpp
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(65): warning C4018: '<': signed/unsigned mismatch
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(67): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(72): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(88): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(107): warning C4018: '<': signed/unsigned mismatch
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(112): warning C4018: '<': signed/unsigned mismatch
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(130): warning C4018: '<': signed/unsigned mismatch
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(136): warning C4018: '<': signed/unsigned mismatch
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(268): warning C4018: '<': signed/unsigned mismatch
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(270): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(275): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(291): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(310): warning C4018: '<': signed/unsigned mismatch
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(315): warning C4018: '<': signed/unsigned mismatch
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(333): warning C4018: '<': signed/unsigned mismatch
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(339): warning C4018: '<': signed/unsigned mismatch
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(233): warning C4101: 'recvbuf': unreferenced local variable
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(230): warning C4101: 'iResult': unreferenced local variable
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(235): warning C4101: 'playerSocket': unreferenced local variable
   TicTacToe.vcxproj -> C:\Users\Aaron\Desktop\Code\Netcode\TicTacToe\Debug\TicTacToe.exe
