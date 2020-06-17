@@ -22,9 +22,9 @@ void PieceSpawner::update() {
 
 }
 
-Piece PieceSpawner::spawnPiece() {
+Piece PieceSpawner::spawnPiece(int pID) {
 	// make certain pieces based of player id
-	if (playerID == 0) {
+	if (pID == 0) {
 		Piece circlePiece(800, 150, 0);
 		return circlePiece;
 	}

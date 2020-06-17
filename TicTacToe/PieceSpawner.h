@@ -10,7 +10,7 @@ public:
 
 	void update();
 	void draw(sf::RenderWindow& window);
-	Piece spawnPiece();
+	Piece spawnPiece(int pID);
 
 private:
 	sf::CircleShape circle;

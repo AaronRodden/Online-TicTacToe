@@ -47,11 +47,8 @@ void socketSendMsg(int &iResult, SOCKET socket, std::string stringMsg) {
 
 void socketRecieveMsg(int &iResult, SOCKET socket, char recvbuf[], int recvbuflen) {
 	iResult = recv(socket, recvbuf, recvbuflen, 0);
-	std::cout << iResult << std::endl;
 	if (iResult > 0) {
 		printf("Bytes received: %d\n", iResult);
-		std::cout << recvbuf << std::endl;
-		//break;
 	}
 	else if (iResult == 0)
 		printf("Connection closed\n");
@@ -256,8 +253,12 @@ std::string createMsg(int mouseX, int mouseY, int playerID) {
 		}
 		msg += std::to_string(i);
 	});
-	std::cout << msg << std::endl;
 	return msg;
+}
+
+// Don't like this name but...
+void updateStateWithMsg(std::string msg, PieceSpawner s, GameState state) {
+
 }
 
 void game(int playerID) {
@@ -265,8 +266,8 @@ void game(int playerID) {
 	// TODO: Proper code ran here whether you are client or server
 	int iResult;
 	int recvbuflen = DEFAULT_BUFLEN;
-	std::string sendbuf = "this is a test";
 	char recvbuf[DEFAULT_BUFLEN];
+	std::string recievedMsgBuffer = recvbuf;
 
 	SOCKET playerSocket;
 
@@ -320,7 +321,6 @@ void game(int playerID) {
 						runningState.updateBoard(event.mouseButton.x, event.mouseButton.y, playerID);
 						std::string  msg = createMsg(event.mouseButton.x, event.mouseButton.y, playerID);
 						eventQueue.push(msg);
-
 					}
 				}
 			}
@@ -335,9 +335,8 @@ void game(int playerID) {
 					if (spawn.globalBounds.contains(event.mouseButton.x, event.mouseButton.y))
 					{
 						if (activePieces.size() < 1) {
-							activePieces.push_back(spawn.spawnPiece());
+							activePieces.push_back(spawn.spawnPiece(playerID));
 							activePieces[0].selected();
-							std::cout << "Piece spawned and selected" << std::endl;
 						}
 					}
 				}
@@ -356,11 +355,17 @@ void game(int playerID) {
 			socketSendMsg(iResult, playerSocket, msg);
 		}
 
+		//TODO: Tune this timing?
+		//Look for messages every half a second
 		sf::Time elapsed = clock.getElapsedTime();
 		if (elapsed.asSeconds() > 0.5) {
 			socketRecieveMsg(iResult, playerSocket, recvbuf, recvbuflen);
-
-			//TODO: Update proper game stuff after recieving msg
+			if (recvbuf[0] != '\0' && recvbuf != recievedMsgBuffer) {
+				recievedMsgBuffer = recvbuf;
+				std::cout << recievedMsgBuffer << std::endl;
+				//TODO: Update proper game stuff after recieving msg
+				updateStateWithMsg(recievedMsgBuffer, spawn, runningState);
+			}
 
 			clock.restart();
 		}
