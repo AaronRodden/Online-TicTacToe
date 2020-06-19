@@ -3,7 +3,7 @@
 #include <vector>
 #include <queue> 
 #include <string>
-
+#include <sstream>
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -20,7 +20,6 @@
 #include <stdio.h>
 
 #pragma comment(lib, "Ws2_32.lib")
-
 
 #include "Piece.h"
 #include "PieceSpawner.h"
@@ -184,7 +183,7 @@ SOCKET connectClient() {
 	hints.ai_protocol = IPPROTO_TCP;
 
 	//TODO: Still hardcoding my IP, need to do some sort of I/O for this
-	char const *hardCodeIP = "192.168.2.141";
+	char const *hardCodeIP = "192.168.1.238";
 
 	// Resolve the server address and port
 	iResult = getaddrinfo(hardCodeIP, DEFAULT_PORT, &hints, &result);
@@ -257,8 +256,27 @@ std::string createMsg(int mouseX, int mouseY, int playerID) {
 }
 
 // Don't like this name but...
-void updateStateWithMsg(std::string msg, PieceSpawner s, GameState state) {
+void updateStateWithMsg(std::string msg, PieceSpawner s, GameState &state, std::vector<Piece> &placed) {
+	// Vector of string to save tokens 
+	std::vector<std::string> tokens;
+	// stringstream class check1 
+	std::stringstream check1(msg);
+	std::string intermediate;
+	// Tokenizing w.r.t. space ' ' 
+	while (getline(check1, intermediate, '|'))
+	{
+		tokens.push_back(intermediate);
+	}
+	
+	int x = std::stoi(tokens[0]);
+	int y = std::stoi(tokens[1]);
+	int ID = std::stoi(tokens[2]);
 
+	Piece newPiece = s.spawnPiece(ID);
+	newPiece.setPosition(sf::Vector2f(x, y));
+	placed.push_back(newPiece);
+	state.updateBoard(x, y, ID);
+	state.checkState();
 }
 
 void game(int playerID) {
@@ -319,6 +337,7 @@ void game(int playerID) {
 						//TODO: This will be area of intrest for networking
 						// Update my game state then send msg to update other game state?
 						runningState.updateBoard(event.mouseButton.x, event.mouseButton.y, playerID);
+						runningState.checkState();
 						std::string  msg = createMsg(event.mouseButton.x, event.mouseButton.y, playerID);
 						eventQueue.push(msg);
 					}
@@ -364,7 +383,7 @@ void game(int playerID) {
 				recievedMsgBuffer = recvbuf;
 				std::cout << recievedMsgBuffer << std::endl;
 				//TODO: Update proper game stuff after recieving msg
-				updateStateWithMsg(recievedMsgBuffer, spawn, runningState);
+				updateStateWithMsg(recievedMsgBuffer, spawn, runningState, placedPieces);
 			}
 
 			clock.restart();
@@ -407,11 +426,13 @@ void game(int playerID) {
 
 		//5. If there is a victory, draw victory text 
 		if (runningState.victory == 0 || runningState.victory == 1) {
-			sf::Text text("victory for player " + runningState.victory, font);
+			std::stringstream ss;
+			ss << "Victory for Player " << runningState.victory << std::endl;;
+			sf::Text text(ss.str(), font);
 			text.setCharacterSize(100);
 			text.setStyle(sf::Text::Bold);
 			text.setFillColor(sf::Color::Red);
-			text.setPosition(200, 300);
+			text.setPosition(85, 300);
 			window.draw(text);
 		}
 

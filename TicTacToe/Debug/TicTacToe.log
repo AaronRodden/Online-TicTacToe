@@ -1,10 +1,11 @@
 ﻿  main.cpp
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(307): warning C4018: '<': signed/unsigned mismatch
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(309): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(314): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(335): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(374): warning C4018: '<': signed/unsigned mismatch
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(379): warning C4018: '<': signed/unsigned mismatch
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(397): warning C4018: '<': signed/unsigned mismatch
-c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(403): warning C4018: '<': signed/unsigned mismatch
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(276): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(325): warning C4018: '<': signed/unsigned mismatch
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(327): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(332): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(354): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(393): warning C4018: '<': signed/unsigned mismatch
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(398): warning C4018: '<': signed/unsigned mismatch
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(416): warning C4018: '<': signed/unsigned mismatch
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(422): warning C4018: '<': signed/unsigned mismatch
   TicTacToe.vcxproj -> C:\Users\Aaron\Desktop\Code\Netcode\TicTacToe\Debug\TicTacToe.exe

@@ -9,8 +9,7 @@ public:
 
 	sf::RectangleShape* getBoard();
 	void updateBoard(int x, int y, int playerID);
+	void checkState();
 
 private:
-	void checkState(int playerID);
-
 };
