@@ -8,4 +8,6 @@ c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(393): warning C
 c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(398): warning C4018: '<': signed/unsigned mismatch
 c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(416): warning C4018: '<': signed/unsigned mismatch
 c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(422): warning C4018: '<': signed/unsigned mismatch
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(494): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\aaron\desktop\code\netcode\tictactoe\tictactoe\main.cpp(500): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   TicTacToe.vcxproj -> C:\Users\Aaron\Desktop\Code\Netcode\TicTacToe\Debug\TicTacToe.exe

@@ -163,7 +163,7 @@ SOCKET setupServer() {
 	return ClientSocket;
 }
 
-SOCKET connectClient() {
+SOCKET connectClient(char const * IP) {
 	int iResult;
 	WSADATA wsaData;
 	bool WSAInit;
@@ -183,10 +183,10 @@ SOCKET connectClient() {
 	hints.ai_protocol = IPPROTO_TCP;
 
 	//TODO: Still hardcoding my IP, need to do some sort of I/O for this
-	char const *hardCodeIP = "192.168.1.238";
+	//char const *hardCodeIP = "192.168.1.238";
 
 	// Resolve the server address and port
-	iResult = getaddrinfo(hardCodeIP, DEFAULT_PORT, &hints, &result);
+	iResult = getaddrinfo(IP, DEFAULT_PORT, &hints, &result);
 	if (iResult != 0) {
 		printf("getaddrinfo failed: %d\n", iResult);
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -279,7 +279,7 @@ void updateStateWithMsg(std::string msg, PieceSpawner s, GameState &state, std::
 	state.checkState();
 }
 
-void game(int playerID) {
+void game(int playerID, sf::RenderWindow &window, char const * IP = NULL) {
 
 	// TODO: Proper code ran here whether you are client or server
 	int iResult;
@@ -293,10 +293,10 @@ void game(int playerID) {
 		playerSocket = setupServer();
 	}
 	else {
-		playerSocket = connectClient();
+		playerSocket = connectClient(IP);
 	}
 
-	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML works!");
+	//sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML works!");
 	sf::Clock clock;
 
 	// Declare and load a font
@@ -440,19 +440,115 @@ void game(int playerID) {
 	}
 }
 
+void connectScreen(sf::RenderWindow &window) {
+
+	sf::Font font;
+	font.loadFromFile("fonts/arial.ttf");
+
+	sf::RectangleShape hostButton;
+	hostButton.setSize(sf::Vector2f(200, 100));
+	hostButton.setOutlineColor(sf::Color::Red);
+	hostButton.setOutlineThickness(5);
+	hostButton.setPosition(200, 300);
+
+	sf::Text hostText("Host", font);
+	hostText.setCharacterSize(80);
+	hostText.setStyle(sf::Text::Bold);
+	hostText.setFillColor(sf::Color::Red);
+	hostText.setPosition(210, 300);
+
+	sf::RectangleShape joinButton;
+	joinButton.setSize(sf::Vector2f(200, 100));
+	joinButton.setOutlineColor(sf::Color::Blue);
+	joinButton.setOutlineThickness(5);
+	joinButton.setPosition(600, 300);
+
+	sf::Text joinText("Join", font);
+	joinText.setCharacterSize(80);
+	joinText.setStyle(sf::Text::Bold);
+	joinText.setFillColor(sf::Color::Blue);
+	joinText.setPosition(610, 300);
+
+	bool promptFlag = false;
+	sf::Text ipPrompt("Please enter the host's IP address", font);
+	ipPrompt.setCharacterSize(40);
+	ipPrompt.setStyle(sf::Text::Bold);
+	ipPrompt.setFillColor(sf::Color::Blue);
+	ipPrompt.setPosition(100, 300);
+
+	std::string playerInput;
+	sf::Text playerText("",font);
+
+	while (window.isOpen())
+	{
+		sf::Event event;
+
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::MouseButtonPressed)
+			{
+				//if left button pressed
+				if (event.mouseButton.button == sf::Mouse::Left)
+				{
+					// clicked host button
+					if (hostButton.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+						std::cout << "Clicked host button" << std::endl;
+						game(0, window);
+					}
+
+					// clicked join button
+					if (joinButton.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+						std::cout << "Clicked join button" << std::endl;
+						promptFlag = true;
+					}
+				}
+			}
+
+			if (promptFlag == true && event.type == sf::Event::TextEntered)
+			{
+				playerInput += event.text.unicode;
+				playerText.setString(playerInput);
+				playerText.setCharacterSize(40);
+				playerText.setStyle(sf::Text::Bold);
+				playerText.setFillColor(sf::Color::Blue);
+				playerText.setPosition(100, 500);
+			}
+
+			if (promptFlag == true && sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+			{
+				//192.168.1.238
+				char* IPaddr = &*playerInput.begin();
+				game(1, window, IPaddr);
+			}
+
+			if (event.type == sf::Event::Closed) {
+				window.close();
+			}
+		}
+
+		//RENDERING
+		window.clear();
+
+		if (promptFlag == false) {
+			window.draw(hostButton);
+			window.draw(hostText);
+			window.draw(joinButton);
+			window.draw(joinText);
+		}
+		if (promptFlag == true) {
+			window.draw(ipPrompt);
+			window.draw(playerText);
+		}
+
+		window.display();
+	}
+
+}
+
 int main()
 {
-	int x;
-	std::cout << "0 for server, 1 for client" << std::endl;
-	std::cin >> x;
-	std::cout << "You entered: " << x << std::endl;
-
-	if (x == 0) {
-		game(0);
-	}
-	else {
-		game(1);
-	}
+	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML works!");
+	connectScreen(window);
 	return 0;
 }
 
